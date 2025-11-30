@@ -1,0 +1,12 @@
+**/*.in
+**/*.out
+**/*.nsys-rep
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.cache/
+env/
+venv/
+.ipynb_checkpoints/
+.DS_Store

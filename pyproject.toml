@@ -1,0 +1,29 @@
+[project]
+name = "AdventOfCode2025"
+version = "0.1.0"
+description = "Advent of Code 2025 solutions"
+readme = "README.md"
+requires-python = ">=3.13"
+
+dependencies = [
+  "cuda-cccl[cu13]",
+  "cupy-cuda13x",
+  "cudf-cu13==25.10.*",
+  "nvidia-cutlass-dsl",
+  "nvtx",
+  "warp-lang @ https://github.com/NVIDIA/warp/releases/download/v1.10.0/warp_lang-1.10.0+cu13-py3-none-manylinux_2_28_x86_64.whl",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff",
+  "ty",
+]
+
+[build-system]
+requires = ["setuptools>=61.0","wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "C", "I"]
