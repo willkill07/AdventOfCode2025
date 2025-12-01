@@ -20,6 +20,12 @@ Python:
 
 ## Solutions
 
-| Day | Programming Model  |
-|:----|:-------------------|
-| 01  | [CuTe](./day01.py) |
+| Day | Programming Model  | Run Command              |
+|:----|:-------------------|:-------------------------|
+| 01  | [CuTe](./day01.py) | `uv run python day01.py` |
+
+
+## Dependencies
+
+- `uv` with Python >= 3.12 installed
+- `NVIDIA HPC SDK >= 2025.09`
