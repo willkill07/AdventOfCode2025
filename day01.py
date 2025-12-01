@@ -22,7 +22,7 @@ def compute_kernel(data: cute.Tensor, size: cute.Int32, count_all: cutlass.Const
     if tidx == 0:
         count = cute.Int32(0)
         start = cute.Int32(50)
-        for row in cutlass.range(size, unroll_full=True):
+        for row in cutlass.range(size, unroll=32):
             elem = cute.Int32(data[row])
             prev = start
 
