@@ -22,29 +22,37 @@ def compute_kernel(data: cute.Tensor, size: cute.Int32, count_all: cutlass.Const
     if tidx == 0:
         count = cute.Int32(0)
         start = cute.Int32(50)
-        row = cute.Int32(0)
-        while row < size:
+        for row in cutlass.range(size, unroll_full=True):
             elem = cute.Int32(data[row])
-            d = 1 if elem > 0 else -1
-            if count_all:
-                while elem != 0:
-                    elem -= d
-                    start += d
-                    if start < 0:
-                        start += 100
-                    if start >= 100:
-                        start -= 100
-                    if start == 0:
-                        count += 1
+            prev = start
+
+            # clockwise rotation correction
+            while elem > 100:
+                elem -= 100
+                if cutlass.const_expr(count_all):
+                    count += 1
+
+            # counter-clockwise rotation correction
+            while elem < -100:
+                elem += 100
+                if cutlass.const_expr(count_all):
+                    count += 1
+
+            # perform the movement and bound to [0, 99]
+            start += elem
+            if start >= 100:
+                start -= 100
+            if start < 0:
+                start += 100
+
+            if cutlass.const_expr(count_all):
+                # add IFF we crossed or at zero
+                if prev != 0 and (start == 0 or (elem > 0) == (start < prev)):
+                    count += 1
             else:
-                start += elem
-                while start < 0:
-                    start += 100
-                while start >= 100:
-                    start -= 100
+                # add IFF we are at zero
                 if start == 0:
                     count += 1
-            row += 1
         cute.printf("{}", count)
 
 
