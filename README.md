@@ -17,3 +17,9 @@ Python:
 - [numba-cuda](https://github.com/NVIDIA/numba-cuda)
 - [warp](https://github.com/NVIDIA/warp)
 - [CuTe](https://github.com/NVIDIA/cutlass/tree/main/python/CuTeDSL)
+
+## Solutions
+
+| Day | Programming Model  |
+|:----|:-------------------|
+| 01  | [CuTe](./day01.py) |
