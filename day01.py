@@ -7,22 +7,22 @@ from cutlass.cute.runtime import from_dlpack
 
 
 @nvtx.annotate("Input Parsing")
-def read_input() -> tuple[cute.Tensor, int]:
+def read_input() -> cute.Tensor:
     with open("inputs/day01.in") as f:
         lines = np.array([line.strip() for line in f])
         signs = np.where(np.char.startswith(lines, "L"), -1, 1)
         counts = np.array([int(s[1:]) for s in lines], dtype=np.int32)
         joined = cp.array(signs * counts)
-        return from_dlpack(joined), len(lines)
+        return from_dlpack(joined)
 
 
 @cute.kernel
-def compute_kernel(data: cute.Tensor, size: cute.Int32, count_all: cutlass.Constexpr):  # noqa: C901
+def compute_kernel(data: cute.Tensor, count_all: cutlass.Constexpr):  # noqa: C901
     tidx, _, _ = cute.arch.thread_idx()
     if tidx == 0:
         count = cute.Int32(0)
         start = cute.Int32(50)
-        for row in cutlass.range(size, unroll=32):
+        for row in cutlass.range(cute.size(data), unroll=32):
             elem = cute.Int32(data[row])
             prev = start
 
@@ -58,8 +58,8 @@ def compute_kernel(data: cute.Tensor, size: cute.Int32, count_all: cutlass.Const
 
 @nvtx.annotate("Part 1")
 @cute.jit
-def part1(data: cute.Tensor, size: cute.Int32) -> None:
-    compute_kernel(data, size, False).launch(
+def part1(data: cute.Tensor) -> None:
+    compute_kernel(data, False).launch(
         grid=(1, 1, 1),
         block=(32, 1, 1),
     )
@@ -67,8 +67,8 @@ def part1(data: cute.Tensor, size: cute.Int32) -> None:
 
 @nvtx.annotate("Part 2")
 @cute.jit
-def part2(data: cute.Tensor, size: cute.Int32) -> None:
-    compute_kernel(data, size, True).launch(
+def part2(data: cute.Tensor) -> None:
+    compute_kernel(data, True).launch(
         grid=(1, 1, 1),
         block=(32, 1, 1),
     )
@@ -76,9 +76,9 @@ def part2(data: cute.Tensor, size: cute.Int32) -> None:
 
 @nvtx.annotate("Day 01")
 def main() -> None:
-    parsed_input = read_input()
-    part1(*parsed_input)
-    part2(*parsed_input)
+    data = read_input()
+    part1(data)
+    part2(data)
 
 
 if __name__ == "__main__":
