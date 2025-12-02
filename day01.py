@@ -17,7 +17,7 @@ def read_input() -> cute.Tensor:
 
 
 @cute.kernel
-def compute_kernel(data: cute.Tensor, count_all: cutlass.Constexpr):  # noqa: C901
+def compute_kernel(data: cute.Tensor, out: cute.Tensor, count_all: cutlass.Constexpr):  # noqa: C901
     tidx, _, _ = cute.arch.thread_idx()
     if tidx == 0:
         count = cute.Int32(0)
@@ -53,33 +53,40 @@ def compute_kernel(data: cute.Tensor, count_all: cutlass.Constexpr):  # noqa: C9
                 # add IFF we are at zero
                 if start == 0:
                     count += 1
-        cute.printf("{}", count)
+        out[0] = count
 
 
 @nvtx.annotate("Part 1")
 @cute.jit
-def part1(data: cute.Tensor) -> None:
-    compute_kernel(data, False).launch(
+def part1(data: cute.Tensor) -> int:
+    out = cp.array([0], dtype=cp.int32)
+    output = cute.make_tensor(cute.make_ptr(cute.Int32, out.data.ptr), (1,))
+    compute_kernel(data, output, False).launch(
         grid=(1, 1, 1),
         block=(32, 1, 1),
     )
+    return out[0]
 
 
 @nvtx.annotate("Part 2")
 @cute.jit
-def part2(data: cute.Tensor) -> None:
-    compute_kernel(data, True).launch(
+def part2(data: cute.Tensor) -> int:
+    out = cp.array([0], dtype=cp.int32)
+    output = cute.make_tensor(cute.make_ptr(cute.Int32, out.data.ptr), (1,))
+    compute_kernel(data, output, True).launch(
         grid=(1, 1, 1),
         block=(32, 1, 1),
     )
+    return out[0]
 
 
 @nvtx.annotate("Day 01")
-def main() -> None:
+def main() -> tuple[int, int]:
     data = read_input()
-    part1(data)
-    part2(data)
+    res1 = part1(data)
+    res2 = part2(data)
+    return res1, res2
 
 
 if __name__ == "__main__":
-    main()
+    print(*main())
