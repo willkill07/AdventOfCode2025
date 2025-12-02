@@ -13,7 +13,7 @@ C++:
 Python:
 - [ ] [cuda.cccl](https://github.com/NVIDIA/cccl/tree/main/python/cuda_cccl)
 - [ ] [cudf](https://github.com/rapids-ai/cudf)
-- [ ] [cupy](https://github.com/cupy/cupy/)
+- [x] [cupy](https://github.com/cupy/cupy/)
 - [ ] [numba-cuda](https://github.com/NVIDIA/numba-cuda)
 - [ ] [warp](https://github.com/NVIDIA/warp)
 - [x] [CuTe](https://github.com/NVIDIA/cutlass/tree/main/python/CuTeDSL)
@@ -23,7 +23,7 @@ Python:
 | Day | Programming Model  | Run Command              |
 |:----|:-------------------|:-------------------------|
 | 01  | [CuTe](./day01.py) | `uv run python day01.py` |
-
+| 02  | [cupy](./day02.py) | `uv run python day02.py` |
 
 ## Dependencies
 
