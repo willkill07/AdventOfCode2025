@@ -15,7 +15,7 @@ Python:
 - [ ] [cudf](https://github.com/rapids-ai/cudf)
 - [x] [cupy](https://github.com/cupy/cupy/)
 - [ ] [numba-cuda](https://github.com/NVIDIA/numba-cuda)
-- [ ] [warp](https://github.com/NVIDIA/warp)
+- [x] [warp](https://github.com/NVIDIA/warp)
 - [x] [CuTe](https://github.com/NVIDIA/cutlass/tree/main/python/CuTeDSL)
 
 ## Solutions
@@ -24,8 +24,11 @@ Python:
 |:----|:-------------------|:-------------------------|
 | 01  | [CuTe](./day01.py) | `uv run python day01.py` |
 | 02  | [cupy](./day02.py) | `uv run python day02.py` |
+| 03  | [warp](./day03.py) | `uv run python day03.py` |
 
 ## Dependencies
 
-- `uv` with Python >= 3.12 installed
-- `NVIDIA HPC SDK >= 2025.09`
+- `uv` with Python >= 3.13 installed
+- CUDA >= 13.0
+- NVIDIA HPC SDK >= 2025.09
+- NVIDIA GPU with driver supporting CUDA 13
