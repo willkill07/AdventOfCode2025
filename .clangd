@@ -1,0 +1,33 @@
+If:
+  PathMatch: .*\.cuh
+
+CompileFlags:
+  Add:
+    - --cuda-path=/opt/cuda
+    - --cuda-gpu-arch=sm_120
+    - -xcuda
+    - -isystem
+    - /opt/cuda/include
+
+---
+
+If:
+  PathMatch: .*day.*\.cpp
+
+CompileFlags:
+  Compiler: clang++
+  Add:
+    - -std=c++23
+    - --cuda-path=/opt/cuda
+    - --cuda-gpu-arch=sm_120
+    - -xcuda
+    - -isystem
+    - /opt/cuda/include
+    - -I
+    - /opt/nvidia/hpc_sdk/Linux_x86_64/2025/compilers/include-stdexec/experimental
+    - -I
+    - /opt/nvidia/hpc_sdk/Linux_x86_64/2025/compilers/include
+  Remove:
+    - -stdpar=gpu
+    - -gpu=mem:managed
+    - --experimental-stdpar
