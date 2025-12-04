@@ -29,5 +29,6 @@ CompileFlags:
     - /opt/nvidia/hpc_sdk/Linux_x86_64/2025/compilers/include
   Remove:
     - -stdpar=gpu
-    - -gpu=mem:managed
+    - -gpu*
+    - -acc
     - --experimental-stdpar
