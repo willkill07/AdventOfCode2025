@@ -8,7 +8,6 @@ requires-python = ">=3.13"
 dependencies = [
   "cuda-cccl[cu13]",
   "cupy-cuda13x",
-  "cudf-cu13==25.10.*",
   "nvidia-cutlass-dsl",
   "nvtx",
   "warp-lang @ https://github.com/NVIDIA/warp/releases/download/v1.10.0/warp_lang-1.10.0+cu13-py3-none-manylinux_2_28_x86_64.whl",
