@@ -5,14 +5,14 @@ This year, I may try to do each day in a different programming model targeting G
 C++:
 - [ ] CUDA
 - [ ] OpenMP
-- [ ] OpenACC
+- [x] OpenACC
 - [ ] C++ Standard Parallelism
 - [ ] [C++ Executors](https://github.com/NVIDIA/stdexec/)
 - [ ] [CCCL](https://github.com/NVIDIA/cccl/)
 
 Python:
 - [ ] [cuda.cccl](https://github.com/NVIDIA/cccl/tree/main/python/cuda_cccl)
-- [ ] [cudf](https://github.com/rapids-ai/cudf)
+- [x] [cudf](https://github.com/rapids-ai/cudf)
 - [x] [cupy](https://github.com/cupy/cupy/)
 - [ ] [numba-cuda](https://github.com/NVIDIA/numba-cuda)
 - [x] [warp](https://github.com/NVIDIA/warp)
@@ -20,12 +20,12 @@ Python:
 
 ## Solutions
 
-| Day | Programming Model            | Run Command                      |
-|:----|:-----------------------------|:---------------------------------|
-| 01  | [CuTe](./day01.py)           | `uv run python day01.py`         |
-| 02  | [cupy](./day02.py)           | `uv run python day02.py`         |
-| 03  | [warp](./day03.py)           | `uv run python day03.py`         |
-| 04  | [OpenACC](./day04.cpp)       | `./build/day04` (after building) |
+| Day | Programming Model | Run Command |
+|:----|:------------------|:------------|
+| 01  | [CuTe](./day01.py) | `uv run python day01.py` |
+| 02  | [cupy](./day02.py) | `uv run python day02.py` |
+| 03  | [warp](./day03.py) | `uv run python day03.py` |
+| 04  | [cudf](./day04.py), [OpenACC](./day04.cpp) | `uv run python day04.py`, `./build/day04` (after building) |
 
 ## Dependencies
 
