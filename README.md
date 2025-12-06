@@ -14,7 +14,7 @@ Python:
 - [x] [cuda.cccl](https://github.com/NVIDIA/cccl/tree/main/python/cuda_cccl)
 - [x] [cudf](https://github.com/rapids-ai/cudf)
 - [x] [cupy](https://github.com/cupy/cupy/)
-- [ ] [numba-cuda](https://github.com/NVIDIA/numba-cuda)
+- [x] [numba-cuda](https://github.com/NVIDIA/numba-cuda)
 - [x] [warp](https://github.com/NVIDIA/warp)
 - [x] [CuTe](https://github.com/NVIDIA/cutlass/tree/main/python/CuTeDSL)
 
@@ -27,6 +27,7 @@ Python:
 | 03  | [warp](./day03.py) | `uv run python day03.py` |
 | 04  | [cudf](./day04.py), [OpenACC](./day04.cpp) | `uv run --with "cudf-cu13=25.10.*" python day04.py`, `./build/day04` (after building) |
 | 05  | [cuda.cccl](./day05.py) | `uv run python day05.py` |
+| 06  | [numba-cuda](./day06.py) | `uv run python day06.py` |
 
 
 ## Dependencies
