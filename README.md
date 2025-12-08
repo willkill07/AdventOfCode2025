@@ -44,5 +44,5 @@ Python:
 I assume that CXX is set to `nvc++` already :)
 
 ```
-cmake -B build && cmake --build build
+cmake -B build && cmake --build build -j
 ```

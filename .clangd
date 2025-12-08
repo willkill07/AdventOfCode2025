@@ -1,34 +1,27 @@
-If:
-  PathMatch: .*\.cuh
-
-CompileFlags:
-  Add:
-    - --cuda-path=/opt/cuda
-    - --cuda-gpu-arch=sm_120
-    - -xcuda
-    - -isystem
-    - /opt/cuda/include
-
 ---
 
-If:
-  PathMatch: .*day.*\.cpp
-
 CompileFlags:
-  Compiler: clang++
+  Compiler: g++
   Add:
-    - -std=c++23
+    - -Wno-unknown-cuda-version
+    - -Wno-pragma-system-header-outside-header
+    - --no-cuda-version-check
+    - "-ferror-limit=0"
+    - "-ftemplate-backtrace-limit=0"
     - --cuda-path=/opt/cuda
-    - --cuda-gpu-arch=sm_120
-    - -xcuda
-    - -isystem
-    - /opt/cuda/include
-    - -I
-    - /opt/nvidia/hpc_sdk/Linux_x86_64/2025/compilers/include-stdexec/experimental
-    - -I
-    - /opt/nvidia/hpc_sdk/Linux_x86_64/2025/compilers/include
+    - -U_CCCL_IMPLICIT_SYSTEM_HEADER_GCC
+    - -U__pgnu_vsn
+    - -D_CCCL_IMPLICIT_SYSTEM_HEADER_CLANG
+    - "-isystem/opt/nvidia/hpc_sdk/Linux_x86_64/25.11/compilers/include-stdpar"
+    - "-isystem/opt/nvidia/hpc_sdk/Linux_x86_64/25.11/compilers/include-stdexec/experimental"
+    - "-isystem/opt/nvidia/hpc_sdk/Linux_x86_64/25.11/compilers/include"
+    - "-isystem/opt/cuda/include"
   Remove:
     - -stdpar=gpu
     - -gpu*
     - -acc
     - --experimental-stdpar
+    - --extended-lambda
+    - -arch=*
+    - -forward-unknown-to-host-compiler
+    - --driver-mode*
