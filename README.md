@@ -8,7 +8,7 @@ C++:
 - [x] OpenACC
 - [x] C++ Standard Parallelism
 - [ ] [C++ Executors](https://github.com/NVIDIA/stdexec/)
-- [ ] [CCCL](https://github.com/NVIDIA/cccl/)
+- [x] [CCCL](https://github.com/NVIDIA/cccl/)
 
 Python:
 - [x] [cuda.cccl](https://github.com/NVIDIA/cccl/tree/main/python/cuda_cccl)
@@ -28,7 +28,8 @@ Python:
 | 04  | [cudf](./day04.py), [OpenACC](./day04.cpp) | `uv run --with "cudf-cu13=25.10.*" python day04.py`, `./build/day04` (after building) |
 | 05  | [cuda.cccl](./day05.py) | `uv run python day05.py` |
 | 06  | [numba-cuda](./day06.py) | `uv run python day06.py` |
-| 07  | [C++ Standard Parallelism](./day07.cpp) | `./build/day04` (after building) |
+| 07  | [C++ Standard Parallelism](./day07.cpp) | `./build/day07` (after building) |
+| 08  | [CUDA with CCCL](./day08.cpp) | `./build/day08` (after building) |
 
 ## Dependencies
 
