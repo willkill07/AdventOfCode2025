@@ -90,11 +90,6 @@ auto main() -> int {
   Data data{parse()};
   int64_t const answer1{part1(data)};
   int64_t const answer2{part2(data)};
-  int64_t result{0};
-  for (int i = 0; i < 10; ++i) {
-    result += part1(data);
-    result += part2(data);
-  }
   printf("%ld %ld\n", answer1, answer2);
   return 0;
 } 
