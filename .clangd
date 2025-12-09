@@ -18,6 +18,8 @@ CompileFlags:
     - -stdpar=gpu
     - -gpu*
     - -acc
+    - -mp
+    - -mp=*
     - --experimental-stdpar
     - --extended-lambda
     - -arch=*
