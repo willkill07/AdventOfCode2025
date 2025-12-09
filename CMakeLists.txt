@@ -19,3 +19,7 @@ add_executable(day08 day08.cpp)
 set_source_files_properties(day08.cpp PROPERTIES LANGUAGE CUDA)
 target_compile_options(day08 PRIVATE --extended-lambda)
 target_link_options(day08 PRIVATE -L/opt/cuda/lib64)
+
+add_executable(day09 day09.cpp)
+target_compile_options(day09 PRIVATE -mp=gpu)
+target_link_options(day09 PRIVATE -mp=gpu)

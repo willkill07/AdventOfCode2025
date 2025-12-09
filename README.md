@@ -4,7 +4,7 @@ This year, I may try to do each day in a different programming model targeting G
 
 C++:
 - [ ] CUDA
-- [ ] OpenMP
+- [x] OpenMP
 - [x] OpenACC
 - [x] C++ Standard Parallelism
 - [ ] [C++ Executors](https://github.com/NVIDIA/stdexec/)
@@ -30,6 +30,7 @@ Python:
 | 06  | [numba-cuda](./day06.py) | `uv run python day06.py` |
 | 07  | [C++ Standard Parallelism](./day07.cpp) | `./build/day07` (after building) |
 | 08  | [CUDA with CCCL](./day08.cpp) | `./build/day08` (after building) |
+| 09  | [OpenMP](./day09.cpp) | `./build/day09` (after building) |
 
 ## Dependencies
 
