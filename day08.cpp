@@ -1,5 +1,3 @@
-#include <iostream>
-#include <tuple>
 #include <vector>
 
 #include <cstdint>
@@ -42,8 +40,7 @@ auto parse() -> Data {
   thrust::device_vector<int> d_pair_i(num_pairs), d_pair_j(num_pairs);
   thrust::transform(thrust::counting_iterator<int>(0),
                     thrust::counting_iterator<int>(num_pairs),
-                    thrust::zip_iterator(
-                        thrust::make_tuple(d_pair_i.begin(), d_pair_j.begin())),
+                    thrust::zip_iterator(thrust::make_tuple(d_pair_i.begin(), d_pair_j.begin())),
                     [=] __device__(int idx) {
                       int left{0}, right{n - 1}, i{0};
                       while (left <= right) {
