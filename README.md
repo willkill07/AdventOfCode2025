@@ -3,7 +3,7 @@
 This year, I may try to do each day in a different programming model targeting GPU execution:
 
 C++:
-- [ ] CUDA
+- [x] CUDA
 - [x] OpenMP
 - [x] OpenACC
 - [x] C++ Standard Parallelism
@@ -31,6 +31,7 @@ Python:
 | 07  | [C++ Standard Parallelism](./day07.cpp) | `./build/day07` (after building) |
 | 08  | [CUDA with CCCL](./day08.cpp) | `./build/day08` (after building) |
 | 09  | [OpenMP](./day09.cpp) | `./build/day09` (after building) |
+| 10  | [CUDA](./day10.cpp) | `./build/day10` (after building) |
 
 ## Dependencies
 

@@ -25,3 +25,4 @@ CompileFlags:
     - -arch=*
     - -forward-unknown-to-host-compiler
     - --driver-mode*
+    - -rdc=*
