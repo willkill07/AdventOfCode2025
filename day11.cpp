@@ -1,0 +1,229 @@
+#include <algorithm>
+#include <cstdint>
+#include <cstdio>
+#include <numeric>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include <cuda/std/atomic>
+#include <cuda/std/span>
+
+#include <nvexec/stream_context.cuh>
+#include <stdexec/execution.hpp>
+
+#include <nvtx3/nvtx3.hpp>
+
+namespace ex = stdexec;
+
+// Graph in CSR format
+struct Graph {
+  std::vector<int> row_offsets;     // size = num_nodes + 1
+  std::vector<int> col_indices;     // size = num_edges
+  std::vector<int> out_degree;      // size = num_nodes
+  std::vector<int> in_degree;       // size = num_nodes
+  std::vector<int> row_offsets_rev; // size = num_nodes + 1
+  std::vector<int> col_indices_rev; // size = num_edges
+  int num_nodes{0};
+  std::unordered_map<std::string, int> node_ids;
+};
+
+auto parse() -> Graph {
+  nvtx3::scoped_range _{"Input Parsing"};
+  FILE *f = fopen("inputs/day11.in", "r");
+  fseek(f, 0, SEEK_END);
+  long const fsize = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  std::string buf(fsize + 1, '\0');
+  fread(buf.data(), fsize, 1, f);
+  fclose(f);
+  std::unordered_map<std::string, std::vector<std::string>> adj;
+  std::unordered_map<std::string, int> node_ids;
+  char const *p{buf.data()};
+  char const *const end{buf.data() + fsize};
+  auto skip_ws = [&]() {
+    while (p < end and (*p == ' ' or *p == '\n' or *p == '\r'))
+      ++p;
+  };
+  auto read_word = [&]() -> std::string {
+    skip_ws();
+    std::string word;
+    while (p < end and *p != ' ' and *p != ':' and *p != '\n' and *p != '\r') {
+      word += *p++;
+    }
+    return word;
+  };
+  int next_id{0};
+  node_ids["out"] = next_id++;
+  adj["out"] = {};
+  while (p < end) {
+    skip_ws();
+    if (p >= end)
+      break;
+    std::string const src{read_word()};
+    if (src.empty())
+      break;
+    while (p < end and *p == ':')
+      ++p;
+    if (node_ids.find(src) == node_ids.end()) {
+      node_ids[src] = next_id++;
+    }
+    std::vector<std::string> dests;
+    while (p < end and *p != '\n') {
+      std::string const dst{read_word()};
+      if (!dst.empty()) {
+        dests.push_back(dst);
+        if (node_ids.find(dst) == node_ids.end()) {
+          node_ids[dst] = next_id++;
+        }
+      }
+    }
+    adj[src] = std::move(dests);
+  }
+  auto const num_nodes{node_ids.size()};
+  std::vector<int> h_row_offsets(num_nodes + 1, 0);
+  for (auto const &[src, dests] : adj) {
+    auto const src_id{node_ids.at(src)};
+    h_row_offsets[src_id + 1] = static_cast<int>(dests.size());
+  }
+  std::inclusive_scan(h_row_offsets.begin(), h_row_offsets.end(), h_row_offsets.begin());
+  int const num_edges{h_row_offsets[num_nodes]};
+  std::vector<int> h_col_indices(num_edges, 0);
+  std::vector<int> current_offset(num_nodes, 0);
+  for (auto const &[src, dests] : adj) {
+    auto const src_id{node_ids.at(src)};
+    auto const offset{h_row_offsets[src_id]};
+    for (auto const &dst : dests) {
+      auto const dst_id{node_ids.at(dst)};
+      int const idx = offset + current_offset[src_id]++;
+      h_col_indices[idx] = dst_id;
+    }
+  }
+  std::vector<int> h_out_degree(num_nodes);
+  std::adjacent_difference(h_row_offsets.begin() + 1, h_row_offsets.end(), h_out_degree.begin());
+  std::vector<int> h_in_degree(num_nodes, 0);
+  for (int const dst_id : h_col_indices) {
+    ++h_in_degree[dst_id];
+  }
+  std::vector<int> h_row_offsets_rev(num_nodes + 1, 0);
+  std::inclusive_scan(h_in_degree.begin(), h_in_degree.end(), h_row_offsets_rev.begin() + 1);
+  std::vector<int> h_col_indices_rev(num_edges);
+  std::vector<int> rev_offset(num_nodes, 0);
+  for (size_t u = 0; u < num_nodes; ++u) {
+    int const start{h_row_offsets[u]}, end{h_row_offsets[u + 1]};
+    for (int const v : cuda::std::span{h_col_indices}.subspan(start, end - start)) {
+      int const idx{h_row_offsets_rev[v] + rev_offset[v]++};
+      h_col_indices_rev[idx] = static_cast<int>(u);
+    }
+  }
+  return Graph{
+      .row_offsets = std::move(h_row_offsets),
+      .col_indices = std::move(h_col_indices),
+      .out_degree = std::move(h_out_degree),
+      .in_degree = std::move(h_in_degree),
+      .row_offsets_rev = std::move(h_row_offsets_rev),
+      .col_indices_rev = std::move(h_col_indices_rev),
+      .num_nodes = static_cast<int>(num_nodes),
+      .node_ids = std::move(node_ids),
+  };
+}
+
+auto count(Graph const &graph, int source, int dest, auto scheduler, auto policy) -> int64_t {
+  std::size_t const num_nodes(graph.num_nodes);
+
+  auto paths{std::make_unique<int64_t[]>(num_nodes)};
+  auto out_degree{std::make_unique<int[]>(num_nodes)};
+  auto frontier{std::make_unique<int[]>(num_nodes)};
+  auto next_frontier{std::make_unique<int[]>(num_nodes)};
+  auto frontier_size{std::make_unique<int>(0)};
+  auto next_frontier_size{std::make_unique<int>(0)};
+
+  cuda::std::span paths_span{paths.get(), num_nodes};
+  cuda::std::span out_degree_span{out_degree.get(), num_nodes};
+  cuda::std::span frontier_span{frontier.get(), num_nodes};
+  cuda::std::span next_frontier_span{next_frontier.get(), num_nodes};
+
+  cuda::std::span out_degrees{graph.out_degree};
+  cuda::std::span row_offsets_rev_span{graph.row_offsets_rev};
+  cuda::std::span col_indices_rev_span{graph.col_indices_rev};
+
+  auto fs_ptr{frontier_size.get()}, nfs_ptr{next_frontier_size.get()};
+
+  auto init = ex::schedule(scheduler) | ex::bulk(policy, num_nodes, [=](int u) {
+                cuda::std::atomic_ref<int> frontier_size{*fs_ptr};
+                paths_span[u] = (u == dest) ? 1 : 0;
+                out_degree_span[u] = (u == dest) ? 0 : out_degrees[u];
+                if (out_degree_span[u] == 0) {
+                  frontier_span[frontier_size.fetch_add(1)] = u;
+                }
+              });
+  ex::sync_wait(std::move(init));
+
+  bool curr_active{true};
+  int* size_ptr = curr_active ? fs_ptr : nfs_ptr;
+  while (true) {
+    if (int const size{cuda::std::atomic_ref{*size_ptr}.load()}; size > 0) {
+      auto process =
+        ex::transfer_just(scheduler, curr_active) |
+        ex::bulk(policy, size, [=](int j, bool curr_active) {
+          auto active_span = curr_active ? frontier_span : next_frontier_span;
+          auto next_span = curr_active ? next_frontier_span : frontier_span;
+          int *next_size_ptr = curr_active ? nfs_ptr : fs_ptr;
+          cuda::std::atomic_ref<int> next_frontier_size{*next_size_ptr};
+          int const v{active_span[j]};
+          int const start{row_offsets_rev_span[v]}, end{row_offsets_rev_span[v + 1]};
+          auto const span{col_indices_rev_span.subspan(start, end - start)};
+          for (int const u : span) {
+            cuda::std::atomic_ref uref{paths_span[u]}, vref{paths_span[v]};
+            uref += vref;
+            cuda::std::atomic_ref od_ref{out_degree_span[u]};
+            if (--od_ref == 0) {
+              int const idx{next_frontier_size++};
+              next_span[idx] = u;
+            }
+          }
+        });
+      ex::sync_wait(std::move(process));
+      curr_active = not curr_active;
+      cuda::std::atomic_ref{*size_ptr}.store(0);
+      size_ptr = curr_active ? fs_ptr : nfs_ptr;
+    } else {
+      break;
+    }
+  }
+  return paths[source];
+}
+
+auto part1(Graph const &graph, auto scheduler, auto policy) -> int64_t {
+  nvtx3::scoped_range _{"Part 1"};
+  int const you{graph.node_ids.at("you")};
+  int const out{graph.node_ids.at("out")};
+  return count(graph, you, out, scheduler, policy);
+}
+
+auto part2(Graph const &graph, auto scheduler, auto policy) -> int64_t {
+  nvtx3::scoped_range _{"Part 2"};
+  int const svr{graph.node_ids.at("svr")};
+  int const dac{graph.node_ids.at("dac")};
+  int const fft{graph.node_ids.at("fft")};
+  int const out{graph.node_ids.at("out")};
+  return (count(graph, svr, dac, scheduler, policy) *  //
+          count(graph, dac, fft, scheduler, policy) *  //
+          count(graph, fft, out, scheduler, policy)) + //
+         (count(graph, svr, fft, scheduler, policy) *  //
+          count(graph, fft, dac, scheduler, policy) *  //
+          count(graph, dac, out, scheduler, policy));
+}
+
+auto main() -> int {
+  cudaSetDevice(0);
+  nvtx3::scoped_range _{"Day 11"};
+  auto const graph{parse()};
+  nvexec::stream_context stream_ctx{};
+  auto scheduler{stream_ctx.get_scheduler()};
+  auto const policy{std::execution::par};
+  auto const answer1{part1(graph, scheduler, policy)};
+  auto const answer2{part2(graph, scheduler, policy)};
+  printf("%ld %ld\n", answer1, answer2);
+  return 0;
+}

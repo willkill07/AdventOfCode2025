@@ -30,3 +30,7 @@ set_source_files_properties(day10.cpp PROPERTIES LANGUAGE CUDA)
 set_target_properties(day10 PROPERTIES CUDA_SEPARABLE_COMPILATION On)
 target_compile_options(day10 PRIVATE --extended-lambda -g)
 target_link_options(day10 PRIVATE -L/opt/cuda/lib64)
+
+add_executable(day11 day11.cpp)
+target_compile_options(day11 PRIVATE --experimental-stdpar -stdpar=gpu -gpu=mem:managed)
+target_link_options(day11 PRIVATE --experimental-stdpar -stdpar=gpu -gpu=mem:managed)

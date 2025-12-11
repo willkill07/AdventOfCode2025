@@ -7,7 +7,7 @@ C++:
 - [x] OpenMP
 - [x] OpenACC
 - [x] C++ Standard Parallelism
-- [ ] [C++ Executors](https://github.com/NVIDIA/stdexec/)
+- [x] [C++ Executors](https://github.com/NVIDIA/stdexec/)
 - [x] [CCCL](https://github.com/NVIDIA/cccl/)
 
 Python:
@@ -32,6 +32,7 @@ Python:
 | 08  | [CUDA with CCCL](./day08.cpp) | `./build/day08` (after building) |
 | 09  | [OpenMP](./day09.cpp) | `./build/day09` (after building) |
 | 10  | [CUDA](./day10.cpp) | `./build/day10` (after building) |
+| 11  | [C++ Executors](./day11.cpp) | `./build/day11` (after building) |
 
 ## Dependencies
 
