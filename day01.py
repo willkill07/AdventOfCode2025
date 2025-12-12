@@ -63,7 +63,7 @@ def part1(data: cute.Tensor) -> int:
     output = cute.make_tensor(cute.make_ptr(cute.Int32, out.data.ptr), (1,))
     compute_kernel(data, output, False).launch(
         grid=(1, 1, 1),
-        block=(32, 1, 1),
+        block=(1, 1, 1),
     )
     return out[0]
 
@@ -75,7 +75,7 @@ def part2(data: cute.Tensor) -> int:
     output = cute.make_tensor(cute.make_ptr(cute.Int32, out.data.ptr), (1,))
     compute_kernel(data, output, True).launch(
         grid=(1, 1, 1),
-        block=(32, 1, 1),
+        block=(1, 1, 1),
     )
     return out[0]
 
