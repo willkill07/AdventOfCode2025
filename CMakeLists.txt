@@ -32,5 +32,5 @@ target_compile_options(day10 PRIVATE --extended-lambda -g)
 target_link_options(day10 PRIVATE -L/opt/cuda/lib64)
 
 add_executable(day11 day11.cpp)
-target_compile_options(day11 PRIVATE --experimental-stdpar -stdpar=gpu -gpu=mem:managed)
-target_link_options(day11 PRIVATE --experimental-stdpar -stdpar=gpu -gpu=mem:managed)
+target_compile_options(day11 PRIVATE --experimental-stdpar -stdpar=gpu)
+target_link_options(day11 PRIVATE --experimental-stdpar -stdpar=gpu)
